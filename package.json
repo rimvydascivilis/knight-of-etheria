@@ -1,0 +1,26 @@
+{
+  "name": "knight-of-etheria",
+  "version": "1.0.0",
+  "description": "crypto rpg game",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rimvydascivilis/knight-of-etheria.git"
+  },
+  "keywords": [
+    "game",
+    "rpg",
+    "crypto",
+    "ethereum",
+    "blockchain"
+  ],
+  "author": "Rimvydas Civilis",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/rimvydascivilis/knight-of-etheria/issues"
+  },
+  "homepage": "https://github.com/rimvydascivilis/knight-of-etheria#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.2"
+  }
+}

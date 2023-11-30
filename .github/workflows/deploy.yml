@@ -1,0 +1,36 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["Frontend CI"]
+    branches: [main]
+    types:
+      - completed
+
+permissions:
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download frontend build artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: frontend-ci.yml
+          name: build
+          path: ${{ github.workspace }}/frontend-build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ${{ github.workspace }}/frontend-build
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
