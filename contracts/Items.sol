@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import { CombatPower } from "./CombatPower.sol";
 
@@ -22,7 +22,8 @@ contract Items {
   mapping(ItemType => mapping(MaterialType => Item)) public items;
 
   modifier isValidItemKey(ItemKey memory key) {
-    require(items[key.itemType][key.materialType].price > 0, "Invalid item key");
+    require(key.itemType >= ItemType.Helmet && key.itemType <= ItemType.Boots, "Invalid item type");
+    require(key.materialType >= MaterialType.Wood && key.materialType <= MaterialType.Diamond, "Invalid material type");
     _;
   }
 

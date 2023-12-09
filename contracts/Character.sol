@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import { VitalityPower} from "./VitalityPower.sol";
 import { CombatPower } from "./CombatPower.sol";
@@ -33,37 +33,49 @@ contract Character {
     level = _level;
     xp = 0;
     equippedItems = _equippedItems;
-    updateStats();
+    _updateStats();
   }
 
-  function standartAttackDamage() internal view returns (uint16) {
+  function _standartAttackDamage() internal view returns (uint16) {
     return cp.attack;
   }
 
-  function specialAttackDamage() internal view returns (uint16) {
-    return cp.attack * random(0, 2); // 0 to 2 times attack
+  function _specialAttackDamage() internal view returns (uint16) {
+    return cp.attack * _random(0, 2); // 0 to 2 times attack
   }
 
-  function shieldUpValue() internal view returns (uint16) {
-    uint16 value = random(3, 10);
+  function _shieldUpValue() internal view returns (uint16) {
+    uint16 value = _random(3, 10);
     return sp.max / value; // 10% to 33%
   }
 
-  function random(uint16 min, uint16 max) internal view returns (uint16) {
+  function _random(uint16 min, uint16 max) internal view returns (uint16) {
     return uint16(uint256(keccak256(abi.encodePacked(block.timestamp, block.gaslimit))) % (max - min + 1) + min);
   }
 
-  function updateStats() internal {
+  function levelUp() external {
+    require(level < MAX_LEVEL, "Max level reached");
+    require(xp >= xpLevels[level], "Not enough XP to level up");
+    xp -= xpLevels[level];
+    level++;
+    _updateStats();
+  }
+
+  function _addXp(uint32 _xp) internal {
+    xp += _xp;
+  }
+
+  function _updateStats() private {
     uint16 baseHp = baseHpLevels[level];
     uint16 baseSp = baseSpLevels[level];
     uint16 baseAttack = baseAttackLevels[level];
     uint16 baseDefense = baseDefenseLevels[level];
     hp = VitalityPower(baseHp, baseHp);
     sp = VitalityPower(baseSp, baseSp);
-    cp = calculateCP(baseAttack, baseDefense);
+    cp = _calculateCP(baseAttack, baseDefense);
   }
 
-  function calculateCP(uint16 baseAttack, uint16 baseDefense) internal view returns (CombatPower memory) {
+  function _calculateCP(uint16 baseAttack, uint16 baseDefense) private view returns (CombatPower memory) {
     CombatPower memory totalCP = CombatPower(baseAttack, baseDefense);
     totalCP.attack += items.getItemPower(equippedItems.helmet).attack;
     totalCP.defense += items.getItemPower(equippedItems.helmet).defense;
