@@ -2,6 +2,14 @@
   "name": "knight-of-etheria",
   "version": "1.0.0",
   "description": "crypto rpg game",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test && npx istanbul check-coverage --statements 80 --branches 80 --functions 80 --lines 80",
+    "coverage": "npx hardhat coverage",
+    "lint": "npm run lint:js && npm run lint:sol",
+    "lint:js": "npx eslint --ignore-path .gitignore .",
+    "lint:sol": "npx solhint 'contracts/**/*.sol'"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rimvydascivilis/knight-of-etheria.git"
@@ -21,6 +29,9 @@
   "homepage": "https://github.com/rimvydascivilis/knight-of-etheria#readme",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomiclabs/hardhat-solhint": "^3.0.1",
+    "eslint": "^8.55.0",
+    "eslint-config-google": "^0.14.0",
     "hardhat": "^2.19.2"
   }
 }
