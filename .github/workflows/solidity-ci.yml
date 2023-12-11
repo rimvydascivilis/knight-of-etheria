@@ -28,10 +28,13 @@ jobs:
         with:
           node-version: 20
 
+      - name: show pwd
+        run: pwd
+
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint projectS
+      - name: Lint project
         run: npm run lint
 
   test:
