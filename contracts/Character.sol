@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import { VitalityPower} from "./VitalityPower.sol";
+import { VitalityPower } from "./VitalityPower.sol";
 import { CombatPower } from "./CombatPower.sol";
 import { ItemKey, Items } from "./Items.sol";
 
@@ -34,6 +34,22 @@ contract Character {
     xp = 0;
     equippedItems = _equippedItems;
     _updateStats();
+  }
+
+  function getDamage(uint16 _damage) public view returns (uint16, uint16) {
+    uint16 hpDamage = 0;
+    uint16 spDamage = 0;
+    if (sp.current > 0) {
+      if (_damage > sp.current) {
+        hpDamage = _damage - sp.current;
+        spDamage = sp.current;
+      } else {
+        spDamage = _damage;
+      }
+    } else {
+      hpDamage = _damage;
+    }
+    return (hpDamage, spDamage);
   }
 
   function _standartAttackDamage() internal view returns (uint16) {

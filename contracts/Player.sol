@@ -5,17 +5,24 @@ import { Character, Equipment } from "./Character.sol";
 import { ItemKey, ItemType, MaterialType } from "./Items.sol";
 
 contract Player is Character {
-  address public immutable owner;
+  address public activeRoom;  
+  address public immutable game;
+  uint16 highestCompletedRoomLevel = 0;
   ItemKey[] public inventory;
   uint32 public gold;
 
-  modifier onlyOwner() {
-    require(msg.sender == owner, "Only owner can call this function");
+  modifier onlyGame() {
+    require(msg.sender == game, "Only game can call this function");
+    _;
+  }
+
+  modifier onlyActiveRoom() {
+    require(msg.sender == address(activeRoom), "Only active room can call this function");
     _;
   }
 
   constructor(uint8 _level, address _items, Equipment memory _equippedItems) Character(_level, _items, _equippedItems) {
-    owner = msg.sender;
+    game = msg.sender; // assume that msg.sender is the game contract
     inventory.push(_equippedItems.helmet);
     inventory.push(_equippedItems.armor);
     inventory.push(_equippedItems.weapon);
@@ -34,19 +41,35 @@ contract Player is Character {
     return _shieldUpValue();
   }
 
-  function addXp(uint32 _xp) external onlyOwner {
+  function addXp(uint32 _xp) external onlyActiveRoom {
     _addXp(_xp);
   }
 
-  function setGold(uint32 _gold) external onlyOwner {
+  function addGold(uint32 _gold) external onlyActiveRoom {
+    gold += _gold;
+  }
+
+  function setGold(uint32 _gold) external onlyGame {
     gold = _gold;
   }
 
-  function addInventoryItem(ItemKey memory _item) external onlyOwner {
+  function decreaseHealth(uint16 _damage) external onlyActiveRoom {
+    hp.current -= _damage;
+  }
+
+  function decreaseShield(uint16 _damage) external onlyActiveRoom {
+    sp.current -= _damage;
+  }
+
+  function setHighestCompletedRoomLevel(uint16 _highestCompletedRoomLevel) external onlyGame {
+    highestCompletedRoomLevel = _highestCompletedRoomLevel;
+  }
+
+  function addInventoryItem(ItemKey memory _item) external onlyGame {
     inventory.push(_item);
   }
 
-  function removeInventoryItem(uint256 _index) external onlyOwner {
+  function removeInventoryItem(uint256 _index) external onlyGame {
     require(_index < inventory.length, "Index out of bounds");
     inventory[_index] = inventory[inventory.length - 1];
     inventory.pop();
