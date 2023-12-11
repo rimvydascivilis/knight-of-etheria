@@ -4,8 +4,9 @@
   "description": "crypto rpg game",
   "scripts": {
     "compile": "npx hardhat compile",
-    "test": "npx hardhat test && npx istanbul check-coverage --statements 80 --branches 80 --functions 80 --lines 80",
-    "coverage": "npx hardhat coverage",
+    "test": "npx hardhat test",
+    "coverage": "npx istanbul check-coverage --statements 80 --branches 80 --functions 80 --lines 80",
+    "coverage:report": "npx hardhat coverage",
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:js": "npx eslint --ignore-path .gitignore .",
     "lint:sol": "npx solhint 'contracts/**/*.sol'"
