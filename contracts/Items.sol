@@ -61,7 +61,8 @@ contract Items {
     return items[key.itemType][key.materialType].power;
   }
 
-  function initializeItem(ItemType itemType, MaterialType materialType, uint16 price, uint16 attack, uint16 defense) private {
+  function initializeItem(ItemType itemType, MaterialType materialType,
+  uint16 price, uint16 attack, uint16 defense) private {
     items[itemType][materialType] = Item(itemType, materialType, CombatPower(attack, defense), price);
   }
 }

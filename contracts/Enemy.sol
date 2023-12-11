@@ -15,7 +15,8 @@ contract Enemy is Character {
     _;
   }
 
-  constructor(uint8 _level, address _items, Equipment memory _equippedItems, uint32 _goldReward, uint32 _xpReward, address _room) Character(_level, _items, _equippedItems) {
+  constructor(uint8 _level, address _items, Equipment memory _equippedItems, uint32 _goldReward,
+  uint32 _xpReward, address _room) Character(_level, _items, _equippedItems) {
     room = _room;
     xpReward = _xpReward;
     goldReward = _goldReward;
