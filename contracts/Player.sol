@@ -49,16 +49,32 @@ contract Player is Character {
     gold += _gold;
   }
 
-  function setGold(uint32 _gold) external onlyGame {
-    gold = _gold;
-  }
-
   function decreaseHealth(uint16 _damage) external onlyActiveRoom {
-    hp.current -= _damage;
+    if (hp.current > _damage) {
+      hp.current -= _damage;
+    } else {
+      hp.current = 0;
+    }
   }
 
   function decreaseShield(uint16 _damage) external onlyActiveRoom {
-    sp.current -= _damage;
+    if (sp.current > _damage) {
+      sp.current -= _damage;
+    } else {
+      sp.current = 0;
+    }
+  }
+
+  function increaseShield(uint16 _value) external onlyActiveRoom {
+    if (sp.current + _value > sp.max) {
+      sp.current = sp.max;
+    } else {
+      sp.current += _value;
+    }
+  }
+
+  function setGold(uint32 _gold) external onlyGame {
+    gold = _gold;
   }
 
   function setHighestCompletedRoomLevel(uint16 _highestCompletedRoomLevel) external onlyGame {

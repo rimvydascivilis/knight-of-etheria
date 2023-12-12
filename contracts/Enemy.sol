@@ -23,11 +23,27 @@ contract Enemy is Character {
   }
 
   function decreaseHealth(uint16 _damage) external onlyRoom {
-    hp.current -= _damage;
+    if (hp.current > _damage) {
+      hp.current -= _damage;
+    } else {
+      hp.current = 0;
+    }
   }
 
   function decreaseShield(uint16 _damage) external onlyRoom {
-    sp.current -= _damage;
+    if (sp.current > _damage) {
+      sp.current -= _damage;
+    } else {
+      sp.current = 0;
+    }
+  }
+
+  function increaseShield(uint16 _value) external onlyRoom {
+    if (sp.current + _value > sp.max) {
+      sp.current = sp.max;
+    } else {
+      sp.current += _value;
+    }
   }
 
   function isDead() public view returns (bool) {
