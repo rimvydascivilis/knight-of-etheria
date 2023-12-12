@@ -33,6 +33,11 @@ contract Room {
     _;
   }
 
+  modifier thisRoomIsActive() {
+    player.activeRoom() == address(this);
+    _;
+  }
+
   constructor(uint16 _level, uint32 _xpReward, uint32 _goldReward , Player _player, Enemy[] memory _enemies) {
     game = msg.sender; // assuming that game contract creates rooms
     level = _level;
@@ -57,7 +62,8 @@ contract Room {
     return enemies.length;
   }
 
-  function standartAttackEnemy(uint256 _index) external onlyPlayer validEnemyIndex(_index) aliveEnemy(_index) {
+  function standartAttackEnemy(uint256 _index) external 
+  thisRoomIsActive onlyPlayer validEnemyIndex(_index) aliveEnemy(_index) {
     Enemy enemy = getEnemy(_index);
     uint16 damage = player.standartAttackDamage();
     (uint16 hpDamage, uint16 spDamage) = enemy.getDamage(damage);
@@ -71,7 +77,8 @@ contract Room {
     }
   }
 
-  function specialAttackEnemy(uint256 _index) external onlyPlayer validEnemyIndex(_index) aliveEnemy(_index) {
+  function specialAttackEnemy(uint256 _index) external
+  thisRoomIsActive onlyPlayer validEnemyIndex(_index) aliveEnemy(_index) {
     Enemy enemy = getEnemy(_index);
     uint16 damage = player.specialAttackDamage();
     (uint16 hpDamage, uint16 spDamage) = enemy.getDamage(damage);
@@ -85,13 +92,13 @@ contract Room {
     }
   }
 
-  function shieldUp() external onlyPlayer {
+  function shieldUp() external thisRoomIsActive onlyPlayer {
     uint16 value = player.shieldUpValue();
     player.increaseShield(value);
     enemyMove(0);
   }
 
-  function reset() external onlyPlayer {
+  function reset() external thisRoomIsActive onlyPlayer {
     for (uint256 i = 0; i < enemies.length; i++) {
       enemies[i].reset();
     }
