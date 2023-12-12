@@ -24,6 +24,10 @@ contract Game {
     items = new Items();
   }
 
+  function getCharacterAddress() public view returns (address) {
+    return address(players[msg.sender]);
+  }
+
   function createCharacter() public payable {
     require(msg.value == 0.1 ether, "Character creation cost is 0.1 ether");
     require(address(players[msg.sender]) == address(0), "Player already has a character");

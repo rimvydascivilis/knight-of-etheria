@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import { CombatPower } from "./CombatPower.sol";
 
 enum ItemType { Helmet, Armor, Weapon, Boots }
-enum MaterialType { Wood, Iron, Steel, Diamond }
+enum MaterialType { None, Wood, Iron, Steel, Diamond }
 
 struct Item {
   ItemType itemType;
@@ -23,26 +23,30 @@ contract Items {
 
   modifier isValidItemKey(ItemKey memory key) {
     require(key.itemType >= ItemType.Helmet && key.itemType <= ItemType.Boots, "Invalid item type");
-    require(key.materialType >= MaterialType.Wood && key.materialType <= MaterialType.Diamond, "Invalid material type");
+    require(key.materialType >= MaterialType.None && key.materialType <= MaterialType.Diamond, "Invalid material type");
     _;
   }
 
   constructor() {
+    initializeItem(ItemType.Helmet, MaterialType.None, 0, 0, 0);
     initializeItem(ItemType.Helmet, MaterialType.Wood, 10, 0, 1);
     initializeItem(ItemType.Helmet, MaterialType.Iron, 20, 0, 2);
     initializeItem(ItemType.Helmet, MaterialType.Steel, 30, 0, 3);
     initializeItem(ItemType.Helmet, MaterialType.Diamond, 40, 0, 4);
 
+    initializeItem(ItemType.Armor, MaterialType.None, 0, 0, 0);
     initializeItem(ItemType.Armor, MaterialType.Wood, 10, 0, 1);
     initializeItem(ItemType.Armor, MaterialType.Iron, 20, 0, 2);
     initializeItem(ItemType.Armor, MaterialType.Steel, 30, 0, 3);
     initializeItem(ItemType.Armor, MaterialType.Diamond, 40, 0, 4);
 
+    initializeItem(ItemType.Weapon, MaterialType.None, 0, 0, 0);
     initializeItem(ItemType.Weapon, MaterialType.Wood, 10, 1, 0);
     initializeItem(ItemType.Weapon, MaterialType.Iron, 20, 2, 0);
     initializeItem(ItemType.Weapon, MaterialType.Steel, 30, 3, 0);
     initializeItem(ItemType.Weapon, MaterialType.Diamond, 40, 4, 0);
 
+    initializeItem(ItemType.Boots, MaterialType.None, 0, 0, 0);
     initializeItem(ItemType.Boots, MaterialType.Wood, 10, 0, 1);
     initializeItem(ItemType.Boots, MaterialType.Iron, 20, 0, 2);
     initializeItem(ItemType.Boots, MaterialType.Steel, 30, 0, 3);

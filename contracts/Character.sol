@@ -42,6 +42,11 @@ contract Character {
     _updateStats();
   }
 
+  function getStats() external view
+  returns (uint8, uint32, VitalityPower memory, VitalityPower memory, CombatPower memory) {
+    return (level, xp, hp, sp, cp);
+  }
+
   function getDamage(uint16 _damage) public view returns (uint16, uint16) {
     uint16 hpDamage = 0;
     uint16 spDamage = 0;
