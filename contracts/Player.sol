@@ -49,6 +49,11 @@ contract Player is Character {
     gold += _gold;
   }
 
+  function reset() external onlyActiveRoom {
+    hp.current = hp.max;
+    sp.current = sp.max;
+  }
+
   function decreaseHealth(uint16 _damage) external onlyActiveRoom {
     if (hp.current > _damage) {
       hp.current -= _damage;

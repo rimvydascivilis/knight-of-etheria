@@ -46,6 +46,11 @@ contract Enemy is Character {
     }
   }
 
+  function reset() external onlyRoom {
+    hp.current = hp.max;
+    sp.current = sp.max;
+  }
+
   function isDead() public view returns (bool) {
     return hp.current == 0;
   }
