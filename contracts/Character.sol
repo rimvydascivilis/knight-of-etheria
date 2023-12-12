@@ -12,6 +12,12 @@ struct Equipment {
   ItemKey boots;
 }
 
+enum Moves {
+  StandartAttack,
+  SpecialAttack,
+  ShieldUp
+}
+
 contract Character {
   Items public immutable items;
   Equipment public equippedItems;
