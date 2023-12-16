@@ -1,7 +1,7 @@
 import React from 'react';
 
-export default function ConnectToMetaMask() {
+export default function ConnectMetaMask() {
   return (
-    <h1>Connect to MetaMask</h1>
+    <h1>Please connect MetaMask</h1>
   );
 }
