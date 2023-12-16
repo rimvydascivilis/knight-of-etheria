@@ -95,4 +95,5 @@ contract Player is Character {
     inventory[_index] = inventory[inventory.length - 1];
     inventory.pop();
   }
+  // TODO: equip and unequip items
 }

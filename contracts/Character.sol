@@ -92,7 +92,7 @@ contract Character {
     xp += _xp;
   }
 
-  function _updateStats() private {
+  function _updateStats() internal {
     uint16 baseHp = baseHpLevels[level];
     uint16 baseSp = baseSpLevels[level];
     uint16 baseAttack = baseAttackLevels[level];
