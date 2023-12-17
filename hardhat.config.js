@@ -7,4 +7,10 @@ module.exports = {
   paths: {
     artifacts: './frontend/src/artifacts',
   },
+  settings: {
+    optimizer: {
+      enabled: true,
+      runs: 200,
+    },
+  },
 };

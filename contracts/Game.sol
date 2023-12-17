@@ -6,11 +6,10 @@ import { Equipment } from "./Character.sol";
 import { Items, ItemKey, MaterialType, ItemType } from "./Items.sol";
 
 contract Game {
-  address public owner;
+  address private owner;
   Items public items;
-  mapping(address => Player) public players;
-
-  uint16 public constant MAX_ROOMS = 5;
+  mapping(address => Player) private players;
+  uint16 private constant MAX_ROOMS = 5;
 
   event CharacterCreated(address indexed player);
 

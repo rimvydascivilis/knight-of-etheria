@@ -21,10 +21,10 @@ function CreateCharacter({provider, setPlayerAddress}) {
   };
 
   return (
-    <>
-      <h1>Create Player</h1>
-      <button onClick={createCharacter}>Create Player 0.1 Eth</button>
-    </>
+    <div className='container d-flex flex-column justify-content-center align-items-center'>
+      <h1>Create Character</h1>
+      <button onClick={createCharacter}>Create Character 0.1 Eth</button>
+    </div>
   );
 }
 

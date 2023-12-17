@@ -4,7 +4,7 @@ import {abi as playerContractAbi} from '../artifacts/contracts/Player.sol/Player
 const constants = {
   addressZero: '0x0000000000000000000000000000000000000000',
   gameContract: {
-    address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+    address: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9',
     abi: gameContractAbi,
   },
   playerContract: {

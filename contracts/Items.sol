@@ -19,7 +19,7 @@ struct ItemKey {
 }
 
 contract Items {
-  mapping(ItemType => mapping(MaterialType => Item)) public items;
+  mapping(ItemType => mapping(MaterialType => Item)) private items;
 
   modifier isValidItemKey(ItemKey memory key) {
     require(key.itemType >= ItemType.Helmet && key.itemType <= ItemType.Boots, "Invalid item type");
@@ -28,7 +28,6 @@ contract Items {
   }
 
   constructor() {
-    initializeItem(ItemType.Helmet, MaterialType.None, 0, 0, 0);
     initializeItem(ItemType.Helmet, MaterialType.Wood, 10, 0, 1);
     initializeItem(ItemType.Helmet, MaterialType.Iron, 20, 0, 2);
     initializeItem(ItemType.Helmet, MaterialType.Steel, 30, 0, 3);

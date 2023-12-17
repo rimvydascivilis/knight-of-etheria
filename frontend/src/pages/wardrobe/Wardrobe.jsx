@@ -8,7 +8,10 @@ function Wardrobe() {
   const itemMaterials = ['none', 'wood', 'iron', 'steel', 'diamond'];
   const [provider, playerAddress] = useOutletContext();
 
-  const [inventoryItems, setInventoryItems] = useState([]);
+  const [inventoryItems, setInventoryItems] = useState(Array(20).fill({
+    'type': 0,
+    'material': 0,
+  }));
   const [equippedItems, setEquippedItems] = useState({
     'helmet': 0,
     'armor': 0,
@@ -68,6 +71,26 @@ function Wardrobe() {
     });
   };
 
+  const fetchInventoryItems = async () => {
+    const signer = await provider.getSigner();
+    const playerContract = new ethers.Contract(playerAddress, constants.playerContract.abi, signer);
+    const items = Array(20);
+    for (let i = 0; i < 20; i++) {
+      const item = (await playerContract.inventory(i)).toString().split(',');
+      items[i] = {
+        'type': item[0],
+        'material': item[1],
+      };
+    }
+    setInventoryItems(items);
+  };
+
+  const equipItem = async (_idx) => {
+    const signer = await provider.getSigner();
+    const playerContract = new ethers.Contract(playerAddress, constants.playerContract.abi, signer);
+    playerContract.equipItem(_idx);
+  };
+
   const getCharacterImageSrc = () => {
     let src = 'character/'; // TODO: change to base url
     src += equippedItems.helmet + '_';
@@ -80,58 +103,58 @@ function Wardrobe() {
   useEffect(() => {
     fetchCharacterStats();
     fetchEquippedItems();
+    fetchInventoryItems();
   }, []);
 
   return (
-    <>
-      <div className="d-flex">
-        <div className="ml-5">
-          <img src={getCharacterImageSrc()} className="img-fluid" alt='character'/>
-        </div>
-
-        <div className="ml-5">
-          <div className="align-self-start">
-            <h2>Player Stats</h2>
-            <div>
-              <div>Level: {CharacterStats.level}</div>
-              <div>XP: {CharacterStats.xp}</div>
-              <div>HP: {CharacterStats.hp.current}/{CharacterStats.hp.max}</div>
-              <div>Shield: {CharacterStats.shield.current}/{CharacterStats.shield.max}</div>
-              <div>Damage: {CharacterStats.combat.damage}</div>
-              <div>Defense: {CharacterStats.combat.defense}</div>
-            </div>
-          </div>
-
-          <div>
-            <h2>Equipped Items</h2>
-            <div className="d-flex">
-              <div className="mr-3">
-                <div>Helmet</div>
-                <div>{itemMaterials[equippedItems.helmet]}</div>
-              </div>
+    <div className="d-flex column-gap-5">
+      <div className="d-flex flex-column justify-content-between">
+        <img src={getCharacterImageSrc()} className="img-fluid character" alt='character'/>
+        <table className="table table-bordered align-self-end">
+          <thead className="thead-dark text-center ">
+            <tr>
               {Object.keys(equippedItems).map((item) => (
-                <div key={item} className="mr-3">
-                  <div>{item.charAt(0).toUpperCase() + item.slice(1)}</div>
-                  <div>{itemMaterials[equippedItems[item]]}</div>
-                </div>
+                <th className="text-capitalize" key={item}>{item}</th>
               ))}
-            </div>
-          </div>
+            </tr>
+          </thead>
+          <tbody className="text-center">
+            <tr>
+              {Object.keys(equippedItems).map((item) => (
+                <td className="text-capitalize" key={item}>{itemMaterials[equippedItems[item]]}</td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="d-flex flex-column justify-content-between">
+        <div className="align-self-start stats">
+          <h2>Player Stats</h2>
+          <h3>Level: {CharacterStats.level}</h3>
+          <h3>XP: {CharacterStats.xp}</h3>
+          <h3>HP: {CharacterStats.hp.current}/{CharacterStats.hp.max}</h3>
+          <h3>Shield: {CharacterStats.shield.current}/{CharacterStats.shield.max}</h3>
+          <h3>Damage: {CharacterStats.combat.damage}</h3>
+          <h3>Defense: {CharacterStats.combat.defense}</h3>
         </div>
-        <div>
+
+        <div className="align-self-end">
           <h2>Inventory Items</h2>
-          <div className="d-flex flex-wrap">
+          <div className="inventory-items">
             {inventoryItems.map((item) => (
-              <div key={item.id} className="mr-3 mb-3">
-                <div>{item.name}</div>
-                <div>Quantity: {item.quantity}</div>
-                <button onClick={() => handleEquipItem(item)}>Equip</button>
+              <div key={item.id} className="border border-dark rounded">
+                <div className="inventory-item" onClick={() => equipItem(item.id)}>
+                  {item.material != 0 ? (
+                    <h1>{item.material}</h1>
+                  ) : null}
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
