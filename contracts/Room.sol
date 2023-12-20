@@ -3,38 +3,60 @@ pragma solidity ^0.8.20;
 
 import { Player } from "./Player.sol";
 import { Enemy } from "./Enemy.sol";
-import { Moves } from "./Character.sol";
+import { main } from "./Library.sol";
 
 contract Room {
-  address public immutable game;
+  using main for main.Moves;
+
+  address private immutable game;
   Enemy[] public enemies;
   uint16 public level;
   uint32 public goldReward;
   uint32 public xpReward;
   Player public player;
 
-  modifier onlyPlayer() {
+  function _onlyPlayer() private view {
     require(msg.sender == address(player), "Only player can call this function");
+  }
+
+  modifier onlyPlayer() {
+    _onlyPlayer();
     _;
+  }
+
+  function _onlyGame() private view {
+    require(msg.sender == game, "Only game can call this function");
   }
 
   modifier onlyGame() {
-    require(msg.sender == game, "Only game can call this function");
+    _onlyGame();
     _;
+  }
+
+  function _validEnemyIndex(uint256 _index) private view {
+    require(_index < enemies.length, "Index out of bounds");
   }
 
   modifier validEnemyIndex(uint256 _index) {
-    require(_index < enemies.length, "Index out of bounds");
+    _validEnemyIndex(_index);
     _;
+  }
+
+  function _aliveEnemy(uint256 _index) private view {
+    require(!enemies[_index].isDead(), "Enemy is dead");
   }
 
   modifier aliveEnemy(uint256 _index) {
-    require(!enemies[_index].isDead(), "Enemy is dead");
+    _aliveEnemy(_index);
     _;
   }
 
+  function _thisRoomIsActive() private view {
+    require(player.activeRoom() == address(this), "This room is not active");
+  }
+
   modifier thisRoomIsActive() {
-    player.activeRoom() == address(this);
+    _thisRoomIsActive();
     _;
   }
 
@@ -47,10 +69,6 @@ contract Room {
     for (uint256 i = 0; i < _enemies.length; i++) {
       addEnemy(_enemies[i]);
     }
-  }
-
-  function isCompleted() public view returns (bool) {
-    return enemies.length == 0;
   }
 
   function getEnemy(uint256 _index) public view validEnemyIndex(_index) returns (Enemy) {
@@ -98,28 +116,21 @@ contract Room {
     enemyMove(0);
   }
 
-  function reset() external thisRoomIsActive onlyPlayer {
-    for (uint256 i = 0; i < enemies.length; i++) {
-      enemies[i].reset();
-    }
-    player.reset();
-  }
-
   function enemyMove(uint256 _index) private validEnemyIndex(_index) {
     Enemy enemy = getEnemy(_index);
-    Moves randomMove = Moves(_random(0, 2));
+    main.Moves randomMove = main.Moves(main.random(0, 2));
 
-    if (randomMove == Moves.StandartAttack) {
+    if (randomMove == main.Moves.StandartAttack) {
       uint16 damage = enemy.standartAttackDamage();
       (uint16 hpDamage, uint16 spDamage) = player.getDamage(damage);
       player.decreaseHealth(hpDamage);
       player.decreaseShield(spDamage);
-    } else if (randomMove == Moves.SpecialAttack) {
+    } else if (randomMove == main.Moves.SpecialAttack) {
       uint16 damage = enemy.specialAttackDamage();
       (uint16 hpDamage, uint16 spDamage) = player.getDamage(damage);
       player.decreaseHealth(hpDamage);
       player.decreaseShield(spDamage);
-    } else if (randomMove == Moves.ShieldUp) {
+    } else if (randomMove == main.Moves.ShieldUp) {
       uint16 value = enemy.shieldUpValue();
       enemy.increaseShield(value);
     } else {
@@ -129,9 +140,5 @@ contract Room {
 
   function addEnemy(Enemy _enemy) private {
     enemies.push(_enemy);
-  }
-
-  function _random(uint16 min, uint16 max) private view returns (uint16) {
-    return uint16(uint256(keccak256(abi.encodePacked(block.timestamp, block.gaslimit))) % (max - min + 1) + min);
   }
 }

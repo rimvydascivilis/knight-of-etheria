@@ -1,33 +1,51 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.20;
 
-import { Character, Equipment } from "./Character.sol";
-import { ItemKey, ItemType, MaterialType } from "./Items.sol";
+import { Character } from "./Character.sol";
+import { main } from "./Library.sol";
 
 contract Player is Character {
+  using main for main.ItemKey;
+  using main for main.ItemType;
+  using main for main.MaterialType;
+  using main for main.Equipment;
+
   address public immutable player;
   address public activeRoom;  
   address public immutable game;
   uint16 highestCompletedRoomLevel = 0;
-  ItemKey[20] public inventory;
+  main.ItemKey[20] public inventory;
   uint32 public gold;
 
-  modifier onlyPlayer() {
+  function _onlyPlayer() private view {
     require(msg.sender == player, "Only player can call this function");
+  }
+
+  modifier onlyPlayer() {
+    _onlyPlayer();
     _;
+  }
+
+  function _onlyGame() private view {
+    require(msg.sender == game, "Only game can call this function");
   }
 
   modifier onlyGame() {
-    require(msg.sender == game, "Only game can call this function");
+    _onlyGame();
     _;
+  }
+
+  function _onlyActiveRoom() private view {
+    require(msg.sender == activeRoom, "Only active room can call this function");
   }
 
   modifier onlyActiveRoom() {
-    require(msg.sender == address(activeRoom), "Only active room can call this function");
+    _onlyActiveRoom();
     _;
   }
 
-  constructor(uint8 _level, address _items, Equipment memory _equippedItems) Character(_level, _items, _equippedItems) {
+  constructor(uint8 _level, address _items, main.Equipment memory _equippedItems)
+  Character(_level, _items, _equippedItems) {
     player = tx.origin; // assume that tx.origin is the player
     game = msg.sender; // assume that msg.sender is the game contract
     inventory[0] = _equippedItems.helmet;
@@ -55,46 +73,46 @@ contract Player is Character {
   function equipItem(uint256 _index) public onlyPlayer {
     require(activeRoom == address(0), "Player is already in a room");
     require(_index < inventory.length, "Index out of bounds");
-    ItemKey memory item = inventory[_index];
+    main.ItemKey memory item = inventory[_index];
 
-    if (item.itemType == ItemType.Helmet) {
+    if (item.itemType == main.ItemType.Helmet) {
       _equipItemHelper(equippedItems.helmet, _index);
-    } else if (item.itemType == ItemType.Armor) {
+    } else if (item.itemType == main.ItemType.Armor) {
       _equipItemHelper(equippedItems.armor, _index);
-    } else if (item.itemType == ItemType.Boots) {
+    } else if (item.itemType == main.ItemType.Boots) {
       _equipItemHelper(equippedItems.boots, _index);
-    } else if (item.itemType == ItemType.Weapon) {
+    } else if (item.itemType == main.ItemType.Weapon) {
       _equipItemHelper(equippedItems.weapon, _index);
     }
   
     _updateStats();
   }
 
-  function _equipItemHelper(ItemKey storage equippedItem, uint256 _index) private {
-    if (equippedItem.materialType != MaterialType.None) {
+  function _equipItemHelper(main.ItemKey storage equippedItem, uint256 _index) private {
+    if (equippedItem.materialType != main.MaterialType.None) {
       (inventory[_index], equippedItem) = (equippedItem, inventory[_index]);
     } else {
       inventory[_index] = inventory[inventory.length - 1];
-      inventory[inventory.length - 1] = ItemKey(ItemType.Helmet, MaterialType.None);
+      inventory[inventory.length - 1] = main.ItemKey(main.ItemType.Helmet, main.MaterialType.None);
     }
   }
 
-  function unequipItem(ItemType _itemType) public onlyPlayer {
+  function unequipItem(main.ItemType _itemType) public onlyPlayer {
     require(activeRoom == address(0), "Player is already in a room");
     for (uint256 i = 0; i < inventory.length; i++) {
-      if (inventory[i].materialType == MaterialType.None) {
-        if (_itemType == ItemType.Helmet) {
+      if (inventory[i].materialType == main.MaterialType.None) {
+        if (_itemType == main.ItemType.Helmet) {
           inventory[i] = equippedItems.helmet;
-          equippedItems.helmet = ItemKey(ItemType.Helmet, MaterialType.None);
-        } else if (_itemType == ItemType.Armor) {
+          equippedItems.helmet = main.ItemKey(main.ItemType.Helmet, main.MaterialType.None);
+        } else if (_itemType == main.ItemType.Armor) {
           inventory[i] = equippedItems.armor;
-          equippedItems.helmet = ItemKey(ItemType.Armor, MaterialType.None);
-        } else if (_itemType == ItemType.Boots) {
+          equippedItems.helmet = main.ItemKey(main.ItemType.Armor, main.MaterialType.None);
+        } else if (_itemType == main.ItemType.Boots) {
           inventory[i] = equippedItems.boots;
-          equippedItems.helmet = ItemKey(ItemType.Boots, MaterialType.None);
-        } else if (_itemType == ItemType.Weapon) {
+          equippedItems.helmet = main.ItemKey(main.ItemType.Boots, main.MaterialType.None);
+        } else if (_itemType == main.ItemType.Weapon) {
           inventory[i] = equippedItems.weapon;
-          equippedItems.helmet = ItemKey(ItemType.Weapon, MaterialType.None);
+          equippedItems.helmet = main.ItemKey(main.ItemType.Weapon, main.MaterialType.None);
         }
       }
     }
@@ -147,9 +165,9 @@ contract Player is Character {
     highestCompletedRoomLevel = _highestCompletedRoomLevel;
   }
 
-  function addInventoryItem(ItemKey memory _item) external onlyGame {
+  function addInventoryItem(main.ItemKey memory _item) external onlyGame {
     for (uint256 i = 0; i < inventory.length; i++) {
-      if (inventory[i].materialType == MaterialType.None) {
+      if (inventory[i].materialType == main.MaterialType.None) {
         inventory[i] = _item;
         return;
       }
@@ -159,6 +177,6 @@ contract Player is Character {
   function removeInventoryItem(uint256 _index) external onlyGame {
     require(_index < inventory.length, "Index out of bounds");
     inventory[_index] = inventory[inventory.length - 1];
-    inventory[inventory.length - 1] = ItemKey(ItemType.Helmet, MaterialType.None);
+    inventory[inventory.length - 1] = main.ItemKey(main.ItemType.Helmet, main.MaterialType.None);
   }
 }

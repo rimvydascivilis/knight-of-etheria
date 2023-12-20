@@ -2,19 +2,25 @@
 pragma solidity ^0.8.20;
 
 import { Player } from "./Player.sol";
-import { Equipment } from "./Character.sol";
-import { Items, ItemKey, MaterialType, ItemType } from "./Items.sol";
+import { Items } from "./Items.sol";
+import { main } from "./Library.sol";
 
 contract Game {
+  using main for main.ItemKey;
+  using main for main.ItemType;
+  using main for main.MaterialType;
+
   address private owner;
   Items public items;
   mapping(address => Player) private players;
   uint16 private constant MAX_ROOMS = 5;
 
-  event CharacterCreated(address indexed player);
+  function _validRoomLevel(uint16 _roomLevel) private pure {
+    require(_roomLevel > 0 && _roomLevel <= MAX_ROOMS, "Invalid room level");
+  }
 
   modifier validRoomLevel(uint16 _roomLevel) {
-    require(_roomLevel > 0 && _roomLevel <= MAX_ROOMS, "Invalid room level");
+    _validRoomLevel(_roomLevel);
     _;
   }
 
@@ -30,15 +36,42 @@ contract Game {
   function createCharacter() public payable {
     require(msg.value == 0.1 ether, "Character creation cost is 0.1 ether");
     require(address(players[msg.sender]) == address(0), "Player already has a character");
-    Equipment memory equippedItems = Equipment(
-      ItemKey(ItemType.Helmet, MaterialType.Wood),
-      ItemKey(ItemType.Armor, MaterialType.Wood),
-      ItemKey(ItemType.Weapon, MaterialType.Wood),
-      ItemKey(ItemType.Boots, MaterialType.Wood)
+    main.Equipment memory equippedItems = main.Equipment(
+      main.ItemKey(main.ItemType.Helmet, main.MaterialType.Wood),
+      main.ItemKey(main.ItemType.Armor, main.MaterialType.Wood),
+      main.ItemKey(main.ItemType.Weapon, main.MaterialType.Wood),
+      main.ItemKey(main.ItemType.Boots, main.MaterialType.Wood)
     );
     players[msg.sender] = new Player(0, address(items), equippedItems);
-    emit CharacterCreated(msg.sender);
   }
 
-  // TODO: implement room creation and item shop
+  // TODO: implement room creation
+  function buyItem(main.ItemType _itemType, main.MaterialType _materialType) public payable {
+    require(address(players[msg.sender]) != address(0), "Player does not have a character");
+    main.ItemKey memory key = main.ItemKey(_itemType, _materialType);
+    Player player = players[msg.sender];
+    uint16 price = items.getItemPrice(key);
+    require(player.gold() >= price, "Not enough gold");
+    player.setGold(player.gold() - price);
+    player.addInventoryItem(key);
+  }
+
+  function sellItem(uint256 _index) public payable {
+    require(address(players[msg.sender]) != address(0), "Player does not have a character");
+    Player player = players[msg.sender];
+    main.ItemType itemType;
+    main.MaterialType materialType;
+    (itemType, materialType) = player.inventory(_index);
+    main.ItemKey memory key = main.ItemKey(itemType, materialType);
+    uint16 price = items.getItemPrice(key);
+    player.setGold(player.gold() + price);
+    player.removeInventoryItem(_index);
+  }
+
+  // function createRoom(uint16 _roomLevel) public validRoomLevel(_roomLevel) {
+  //   require(address(players[msg.sender]) != address(0), "Player does not have a character");
+  //   Player player = players[msg.sender];
+  //   require(player.activeRoom() == address(0), "Player is already in a room");
+  //   // player.setActiveRoom(address(new Room(_roomLevel, player)));
+  // }
 }

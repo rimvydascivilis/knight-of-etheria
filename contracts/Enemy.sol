@@ -1,21 +1,28 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.20;
 
-import { Character, Equipment } from "./Character.sol";
+import { Character } from "./Character.sol";
+import { main } from "./Library.sol";
 
 contract Enemy is Character {
+  using main for main.Equipment;
+
   address public room;
   uint32 public goldReward;
   uint32 public xpReward;
 
   uint16 constant private ATTACK_DAMAGE_REDUCTION = 30;
 
-  modifier onlyRoom() {
+  function _onlyRoom() private view {
     require(msg.sender == address(room), "Only room can call this function");
+  }
+
+  modifier onlyRoom() {
+    _onlyRoom();
     _;
   }
 
-  constructor(uint8 _level, address _items, Equipment memory _equippedItems, uint32 _goldReward,
+  constructor(uint8 _level, address _items, main.Equipment memory _equippedItems, uint32 _goldReward,
   uint32 _xpReward, address _room) Character(_level, _items, _equippedItems) {
     room = _room;
     xpReward = _xpReward;
@@ -44,11 +51,6 @@ contract Enemy is Character {
     } else {
       sp.current += _value;
     }
-  }
-
-  function reset() external onlyRoom {
-    hp.current = hp.max;
-    sp.current = sp.max;
   }
 
   function isDead() public view returns (bool) {
