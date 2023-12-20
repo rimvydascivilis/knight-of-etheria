@@ -1,0 +1,16 @@
+.shop-item > img, .sell-item > img {
+    width: 75px;
+    object-fit: cover;
+}
+
+.shop-item > button, .sell-item > button {
+    width: 75px;
+    margin-top: 0.5rem;
+}
+
+.shop-items, .sell-items {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: .25rem;
+    margin: 1rem 0;
+}

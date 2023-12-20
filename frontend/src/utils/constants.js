@@ -5,7 +5,7 @@ import {abi as itemsContractAbi} from '../artifacts/contracts/Items.sol/Items.js
 const constants = {
   addressZero: '0x0000000000000000000000000000000000000000',
   gameContract: {
-    address: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
+    address: '0x9A676e781A523b5d0C0e43731313A708CB607508',
     abi: gameContractAbi,
   },
   playerContract: {
@@ -13,7 +13,7 @@ const constants = {
   },
   itemsContract: {
     abi: itemsContractAbi,
-  }
+  },
 };
 
 export default constants;
