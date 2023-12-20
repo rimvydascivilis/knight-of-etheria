@@ -11,18 +11,18 @@ contract Character {
 
   Items public immutable items;
   main.Equipment public equippedItems;
-  uint8 public level;
-  uint32 public xp;
-  main.VitalityPower public hp;
-  main.VitalityPower public sp;
-  main.CombatPower public cp;
+  uint8 private level;
+  uint32 private xp;
+  main.VitalityPower internal hp;
+  main.VitalityPower internal sp;
+  main.CombatPower internal cp;
 
   uint8 public constant MAX_LEVEL = 5;
-  uint16[MAX_LEVEL] public xpLevels = [0, 100, 250, 500, 1000];
-  uint16[MAX_LEVEL] public baseHpLevels = [100, 150, 200, 250, 300];
-  uint16[MAX_LEVEL] public baseSpLevels = [40, 60, 80, 100, 120];
-  uint16[MAX_LEVEL] public baseAttackLevels = [10, 15, 20, 25, 30];
-  uint16[MAX_LEVEL] public baseDefenseLevels = [10, 15, 20, 25, 30];
+  uint16[MAX_LEVEL] private xpLevels = [0, 100, 250, 500, 1000];
+  uint16[MAX_LEVEL] private baseHpLevels = [100, 150, 200, 250, 300];
+  uint16[MAX_LEVEL] private baseSpLevels = [40, 60, 80, 100, 120];
+  uint16[MAX_LEVEL] private baseAttackLevels = [10, 15, 20, 25, 30];
+  uint16[MAX_LEVEL] private baseDefenseLevels = [10, 15, 20, 25, 30];
 
   constructor(uint8 _level, address _items, main.Equipment memory _equippedItems) {
     items = Items(_items);

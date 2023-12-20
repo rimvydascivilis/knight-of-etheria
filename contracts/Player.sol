@@ -10,10 +10,10 @@ contract Player is Character {
   using main for main.MaterialType;
   using main for main.Equipment;
 
-  address public immutable player;
-  address public activeRoom;  
-  address public immutable game;
-  uint16 highestCompletedRoomLevel = 0;
+  address private immutable player;
+  address public activeRoom;
+  address private immutable game;
+  uint16 public highestCompletedRoomLevel = 0;
   main.ItemKey[20] public inventory;
   uint32 public gold;
 
@@ -54,26 +54,23 @@ contract Player is Character {
     inventory[3] = _equippedItems.boots;
   }
 
-  function standartAttackDamage() public view returns (uint16) {
-    return _standartAttackDamage();
-  }
+  // function standartAttackDamage() public view returns (uint16) {
+  //   return _standartAttackDamage();
+  // }
 
-  function specialAttackDamage() public view returns (uint16) {
-    return _specialAttackDamage();
-  }
+  // function specialAttackDamage() public view returns (uint16) {
+  //   return _specialAttackDamage();
+  // }
 
-  function shieldUpValue() public view returns (uint16) {
-    return _shieldUpValue();
-  }
-
-  function getInventoryLength() public view returns (uint256) {
-    return inventory.length;
-  }
+  // function shieldUpValue() public view returns (uint16) {
+  //   return _shieldUpValue();
+  // }
 
   function equipItem(uint256 _index) public onlyPlayer {
     require(activeRoom == address(0), "Player is already in a room");
     require(_index < inventory.length, "Index out of bounds");
     main.ItemKey memory item = inventory[_index];
+    require(item.materialType != main.MaterialType.None, "Item is not valid");
 
     if (item.itemType == main.ItemType.Helmet) {
       _equipItemHelper(equippedItems.helmet, _index);
@@ -102,17 +99,25 @@ contract Player is Character {
     for (uint256 i = 0; i < inventory.length; i++) {
       if (inventory[i].materialType == main.MaterialType.None) {
         if (_itemType == main.ItemType.Helmet) {
-          inventory[i] = equippedItems.helmet;
-          equippedItems.helmet = main.ItemKey(main.ItemType.Helmet, main.MaterialType.None);
+          if (equippedItems.helmet.materialType != main.MaterialType.None) {
+            inventory[i] = equippedItems.helmet;
+            equippedItems.helmet = main.ItemKey(main.ItemType.Helmet, main.MaterialType.None);
+          }
         } else if (_itemType == main.ItemType.Armor) {
-          inventory[i] = equippedItems.armor;
-          equippedItems.helmet = main.ItemKey(main.ItemType.Armor, main.MaterialType.None);
+          if (equippedItems.armor.materialType != main.MaterialType.None) {
+            inventory[i] = equippedItems.armor;
+            equippedItems.helmet = main.ItemKey(main.ItemType.Armor, main.MaterialType.None);
+          }
         } else if (_itemType == main.ItemType.Boots) {
-          inventory[i] = equippedItems.boots;
-          equippedItems.helmet = main.ItemKey(main.ItemType.Boots, main.MaterialType.None);
+          if (equippedItems.boots.materialType != main.MaterialType.None) {
+            inventory[i] = equippedItems.boots;
+            equippedItems.helmet = main.ItemKey(main.ItemType.Boots, main.MaterialType.None);
+          }
         } else if (_itemType == main.ItemType.Weapon) {
-          inventory[i] = equippedItems.weapon;
-          equippedItems.helmet = main.ItemKey(main.ItemType.Weapon, main.MaterialType.None);
+          if (equippedItems.weapon.materialType != main.MaterialType.None) {
+            inventory[i] = equippedItems.weapon;
+            equippedItems.helmet = main.ItemKey(main.ItemType.Weapon, main.MaterialType.None);
+          }
         }
       }
     }
@@ -120,50 +125,45 @@ contract Player is Character {
     _updateStats();
   }
 
-  function addXp(uint32 _xp) external onlyActiveRoom {
-    _addXp(_xp);
-  }
+  // function addXp(uint32 _xp) external onlyActiveRoom {
+  //   _addXp(_xp);
+  // }
 
-  function addGold(uint32 _gold) external onlyActiveRoom {
-    gold += _gold;
-  }
+  // function addGold(uint32 _gold) external onlyActiveRoom {
+  //   gold += _gold;
+  // }
 
-  function reset() external onlyActiveRoom {
-    hp.current = hp.max;
-    sp.current = sp.max;
-  }
+  // function decreaseHealth(uint16 _damage) external onlyActiveRoom {
+  //   if (hp.current > _damage) {
+  //     hp.current -= _damage;
+  //   } else {
+  //     hp.current = 0;
+  //   }
+  // }
 
-  function decreaseHealth(uint16 _damage) external onlyActiveRoom {
-    if (hp.current > _damage) {
-      hp.current -= _damage;
-    } else {
-      hp.current = 0;
-    }
-  }
+  // function decreaseShield(uint16 _damage) external onlyActiveRoom {
+  //   if (sp.current > _damage) {
+  //     sp.current -= _damage;
+  //   } else {
+  //     sp.current = 0;
+  //   }
+  // }
 
-  function decreaseShield(uint16 _damage) external onlyActiveRoom {
-    if (sp.current > _damage) {
-      sp.current -= _damage;
-    } else {
-      sp.current = 0;
-    }
-  }
-
-  function increaseShield(uint16 _value) external onlyActiveRoom {
-    if (sp.current + _value > sp.max) {
-      sp.current = sp.max;
-    } else {
-      sp.current += _value;
-    }
-  }
+  // function increaseShield(uint16 _value) external onlyActiveRoom {
+  //   if (sp.current + _value > sp.max) {
+  //     sp.current = sp.max;
+  //   } else {
+  //     sp.current += _value;
+  //   }
+  // }
 
   function setGold(uint32 _gold) external onlyGame {
     gold = _gold;
   }
 
-  function setHighestCompletedRoomLevel(uint16 _highestCompletedRoomLevel) external onlyGame {
-    highestCompletedRoomLevel = _highestCompletedRoomLevel;
-  }
+  // function setHighestCompletedRoomLevel(uint16 _highestCompletedRoomLevel) external onlyGame {
+  //   highestCompletedRoomLevel = _highestCompletedRoomLevel;
+  // }
 
   function addInventoryItem(main.ItemKey memory _item) external onlyGame {
     for (uint256 i = 0; i < inventory.length; i++) {
