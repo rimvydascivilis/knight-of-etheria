@@ -5,7 +5,9 @@ import {useOutletContext} from 'react-router-dom';
 import './Wardrobe.css';
 
 function Wardrobe() {
+  // Helmet, Armor, Weapon, Boots
   const itemMaterials = ['none', 'wood', 'iron', 'steel', 'diamond'];
+  const itemTypes = ['helmet', 'armor', 'weapon', 'boots'];
   const [provider, playerAddress] = useOutletContext();
 
   const [inventoryItems, setInventoryItems] = useState(Array(20).fill({
@@ -15,8 +17,8 @@ function Wardrobe() {
   const [equippedItems, setEquippedItems] = useState({
     'helmet': 0,
     'armor': 0,
-    'boots': 0,
     'weapon': 0,
+    'boots': 0,
   });
   const [CharacterStats, setCharacterStats] = useState({
     'level': 0,
@@ -66,8 +68,8 @@ function Wardrobe() {
     setEquippedItems({
       'helmet': helmet,
       'armor': armor,
-      'boots': boots,
       'weapon': weapon,
+      'boots': boots,
     });
   };
 
@@ -91,14 +93,26 @@ function Wardrobe() {
     playerContract.equipItem(_idx);
   };
 
+  const unequipItem = async (item, _idx) => {
+    if(equippedItems[item] == 0) return;
+
+    const signer = await provider.getSigner();
+    const playerContract = new ethers.Contract(playerAddress, constants.playerContract.abi, signer);
+    playerContract.unequipItem(_idx);
+  };
+  
   const getCharacterImageSrc = () => {
-    let src = 'character/'; // TODO: change to base url
+    let src = 'character/';
     src += equippedItems.helmet + '_';
     src += equippedItems.armor + '_';
     src += equippedItems.boots + '_';
     src += equippedItems.weapon + '.png';
     return src;
   };
+
+  const getItemImgSrc = (item) => {
+    return `items/${itemTypes[item['type']]}/${item['material']}.png`;
+  }
 
   useEffect(() => {
     fetchCharacterStats();
@@ -120,8 +134,8 @@ function Wardrobe() {
           </thead>
           <tbody className="text-center">
             <tr>
-              {Object.keys(equippedItems).map((item) => (
-                <td className="text-capitalize" key={item}>{itemMaterials[equippedItems[item]]}</td>
+              {Object.keys(equippedItems).map((item, idx) => (
+                <td className="text-capitalize" key={idx} onClick={() => unequipItem(item, idx)}>{itemMaterials[equippedItems[item]]}</td>
               ))}
             </tr>
           </tbody>
@@ -142,11 +156,11 @@ function Wardrobe() {
         <div className="align-self-end">
           <h2>Inventory Items</h2>
           <div className="inventory-items">
-            {inventoryItems.map((item) => (
-              <div key={item.id} className="border border-dark rounded">
-                <div className="inventory-item" onClick={() => equipItem(item.id)}>
+            {inventoryItems.map((item, idx) => (
+              <div key={idx} className="border border-dark rounded">
+                <div className="inventory-item">
                   {item.material != 0 ? (
-                    <h1>{item.material}</h1>
+                    <img src={getItemImgSrc(item)} alt="inventory item" onClick={() => equipItem(idx)}></img>
                   ) : null}
                 </div>
               </div>

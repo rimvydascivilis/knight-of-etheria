@@ -18,3 +18,8 @@
   width: 4vw;
   height: 4vw;
 }
+
+.inventory-item > img {
+  width: 100%;
+  padding: .25rem;
+}

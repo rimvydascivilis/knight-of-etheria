@@ -8,6 +8,7 @@ import Battle from './pages/battle/Battle';
 import Wardrobe from './pages/wardrobe/Wardrobe';
 import Root from './routes/Root';
 import './index.css';
+import Market from './pages/market/Market';
 
 const router = createBrowserRouter([
   {
@@ -20,7 +21,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'market',
-        element: <Wardrobe />,
+        element: <Market />,
       },
       {
         path: 'wardrobe',
