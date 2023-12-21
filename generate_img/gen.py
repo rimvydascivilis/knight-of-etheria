@@ -20,4 +20,4 @@ for i in range(NO_MATERIALS):
           layer = Image.open(f'img/{items[m]}_{index[m]}.png')
           finalImage.paste(layer, (0, 0), layer)
 
-        finalImage.save(f'res/{i}_{j}_{k}_{l}.png')
+        finalImage.save(f'{directory_name}/{i}_{j}_{k}_{l}.png')
