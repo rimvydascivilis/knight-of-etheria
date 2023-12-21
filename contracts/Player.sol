@@ -35,23 +35,19 @@ contract Player is Character {
     _;
   }
 
-  function _onlyActiveRoom() private view {
-    require(msg.sender == activeRoom, "Only active room can call this function");
-  }
+  // function _onlyActiveRoom() private view {
+  //   require(msg.sender == activeRoom, "Only active room can call this function");
+  // }
 
-  modifier onlyActiveRoom() {
-    _onlyActiveRoom();
-    _;
-  }
+  // modifier onlyActiveRoom() {
+  //   _onlyActiveRoom();
+  //   _;
+  // }
 
   constructor(uint8 _level, address _items, main.Equipment memory _equippedItems)
   Character(_level, _items, _equippedItems) {
     player = tx.origin; // assume that tx.origin is the player
     game = msg.sender; // assume that msg.sender is the game contract
-    inventory[0] = _equippedItems.helmet;
-    inventory[1] = _equippedItems.armor;
-    inventory[2] = _equippedItems.weapon;
-    inventory[3] = _equippedItems.boots;
   }
 
   // function standartAttackDamage() public view returns (uint16) {
@@ -66,6 +62,10 @@ contract Player is Character {
   //   return _shieldUpValue();
   // }
 
+  function getItemsAddress() public view returns (address) {
+    return address(items);
+  }
+
   function equipItem(uint256 _index) public onlyPlayer {
     require(activeRoom == address(0), "Player is already in a room");
     require(_index < inventory.length, "Index out of bounds");
@@ -73,56 +73,71 @@ contract Player is Character {
     require(item.materialType != main.MaterialType.None, "Item is not valid");
 
     if (item.itemType == main.ItemType.Helmet) {
-      _equipItemHelper(equippedItems.helmet, _index);
+      _addInventoryItem(equippedItems.helmet);
+      equippedItems.helmet = main.ItemKey(item.itemType, item.materialType);
     } else if (item.itemType == main.ItemType.Armor) {
-      _equipItemHelper(equippedItems.armor, _index);
+      _addInventoryItem(equippedItems.armor);
+      equippedItems.armor = main.ItemKey(item.itemType, item.materialType);
     } else if (item.itemType == main.ItemType.Boots) {
-      _equipItemHelper(equippedItems.boots, _index);
+      _addInventoryItem(equippedItems.boots);
+      equippedItems.boots = main.ItemKey(item.itemType, item.materialType);
     } else if (item.itemType == main.ItemType.Weapon) {
-      _equipItemHelper(equippedItems.weapon, _index);
+      _addInventoryItem(equippedItems.weapon);
+      equippedItems.weapon = main.ItemKey(item.itemType, item.materialType);
     }
-  
-    _updateStats();
-  }
 
-  function _equipItemHelper(main.ItemKey storage equippedItem, uint256 _index) private {
-    if (equippedItem.materialType != main.MaterialType.None) {
-      (inventory[_index], equippedItem) = (equippedItem, inventory[_index]);
-    } else {
-      inventory[_index] = inventory[inventory.length - 1];
-      inventory[inventory.length - 1] = main.ItemKey(main.ItemType.Helmet, main.MaterialType.None);
-    }
+    _removeInventoryItem(_index);
+    _updateStats();
   }
 
   function unequipItem(main.ItemType _itemType) public onlyPlayer {
     require(activeRoom == address(0), "Player is already in a room");
-    for (uint256 i = 0; i < inventory.length; i++) {
-      if (inventory[i].materialType == main.MaterialType.None) {
-        if (_itemType == main.ItemType.Helmet) {
-          if (equippedItems.helmet.materialType != main.MaterialType.None) {
-            inventory[i] = equippedItems.helmet;
-            equippedItems.helmet = main.ItemKey(main.ItemType.Helmet, main.MaterialType.None);
-          }
-        } else if (_itemType == main.ItemType.Armor) {
-          if (equippedItems.armor.materialType != main.MaterialType.None) {
-            inventory[i] = equippedItems.armor;
-            equippedItems.helmet = main.ItemKey(main.ItemType.Armor, main.MaterialType.None);
-          }
-        } else if (_itemType == main.ItemType.Boots) {
-          if (equippedItems.boots.materialType != main.MaterialType.None) {
-            inventory[i] = equippedItems.boots;
-            equippedItems.helmet = main.ItemKey(main.ItemType.Boots, main.MaterialType.None);
-          }
-        } else if (_itemType == main.ItemType.Weapon) {
-          if (equippedItems.weapon.materialType != main.MaterialType.None) {
-            inventory[i] = equippedItems.weapon;
-            equippedItems.helmet = main.ItemKey(main.ItemType.Weapon, main.MaterialType.None);
-          }
-        }
+  
+    if (_itemType == main.ItemType.Helmet) {
+      if (equippedItems.helmet.materialType != main.MaterialType.None) {
+        _addInventoryItem(equippedItems.helmet);
+        equippedItems.helmet = main.ItemKey(main.ItemType.Helmet, main.MaterialType.None);
+      }
+    } else if (_itemType == main.ItemType.Armor) {
+      if (equippedItems.armor.materialType != main.MaterialType.None) {
+        _addInventoryItem(equippedItems.armor);
+        equippedItems.armor = main.ItemKey(main.ItemType.Armor, main.MaterialType.None);
+      }
+    } else if (_itemType == main.ItemType.Boots) {
+      if (equippedItems.boots.materialType != main.MaterialType.None) {
+        _addInventoryItem(equippedItems.boots);
+        equippedItems.boots = main.ItemKey(main.ItemType.Boots, main.MaterialType.None);
+      }
+    } else if (_itemType == main.ItemType.Weapon) {
+      if (equippedItems.weapon.materialType != main.MaterialType.None) {
+        _addInventoryItem(equippedItems.weapon);
+        equippedItems.weapon = main.ItemKey(main.ItemType.Weapon, main.MaterialType.None);
       }
     }
 
     _updateStats();
+  }
+
+  function _addInventoryItem(main.ItemKey memory _item) private {
+    for (uint256 i = 0; i < inventory.length; i++) {
+      if (inventory[i].materialType == main.MaterialType.None) {
+        inventory[i] = main.ItemKey(_item.itemType, _item.materialType);
+        return;
+      }
+    }
+  }
+
+  function _removeInventoryItem(uint256 _index) private {
+    require(_index < inventory.length, "Index out of bounds");
+    uint256 lastIndex = 0;
+    for (uint256 i = 0; i < inventory.length; i++) {
+      if (inventory[i].materialType == main.MaterialType.None) {
+        lastIndex = i;
+      }
+    }
+
+    inventory[_index] = inventory[lastIndex];
+    inventory[lastIndex] = main.ItemKey(main.ItemType.Helmet, main.MaterialType.None);
   }
 
   // function addXp(uint32 _xp) external onlyActiveRoom {
@@ -166,17 +181,10 @@ contract Player is Character {
   // }
 
   function addInventoryItem(main.ItemKey memory _item) external onlyGame {
-    for (uint256 i = 0; i < inventory.length; i++) {
-      if (inventory[i].materialType == main.MaterialType.None) {
-        inventory[i] = _item;
-        return;
-      }
-    }
+    _addInventoryItem(_item);
   }
 
   function removeInventoryItem(uint256 _index) external onlyGame {
-    require(_index < inventory.length, "Index out of bounds");
-    inventory[_index] = inventory[inventory.length - 1];
-    inventory[inventory.length - 1] = main.ItemKey(main.ItemType.Helmet, main.MaterialType.None);
+    _removeInventoryItem(_index);
   }
 }

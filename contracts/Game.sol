@@ -45,7 +45,13 @@ contract Game {
     players[msg.sender] = new Player(0, address(items), equippedItems);
   }
 
-  // TODO: implement room creation
+  function buyGold() public payable {
+    require(msg.value == 0.01 ether, "100 gold cost 0.01 ether");
+    require(address(players[msg.sender]) != address(0), "Player does not have a character");
+    Player player = players[msg.sender];
+    player.setGold(player.gold() + 100);
+  }
+
   function buyItem(main.ItemType _itemType, main.MaterialType _materialType) public payable {
     require(address(players[msg.sender]) != address(0), "Player does not have a character");
     main.ItemKey memory key = main.ItemKey(_itemType, _materialType);
@@ -67,11 +73,4 @@ contract Game {
     player.setGold(player.gold() + price);
     player.removeInventoryItem(_index);
   }
-
-  // function createRoom(uint16 _roomLevel) public validRoomLevel(_roomLevel) {
-  //   require(address(players[msg.sender]) != address(0), "Player does not have a character");
-  //   Player player = players[msg.sender];
-  //   require(player.activeRoom() == address(0), "Player is already in a room");
-  //   // player.setActiveRoom(address(new Room(_roomLevel, player)));
-  // }
 }

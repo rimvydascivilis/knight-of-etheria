@@ -118,12 +118,12 @@ function Market() {
           </div>
         </div>
 
-        {inventoryItems[0]['type'] == 0 ? null : (
+        {!inventoryItems.some((e)=> e['material'] !== '0') ? null : (
           <div className="align-self-start">
             <h2 className="d-flex justify-content-center">Sell Items</h2>
             <div className="sell-items">
               {inventoryItems.map((item, idx) => {
-                if (item['type'] == 0) return;
+                if (item['material'] == 0) return;
                 return (
                   <div key={idx} className="sell-item d-flex flex-column align-items-center">
                     <img src={getItemImgSrc(item)} alt="shop item"></img>

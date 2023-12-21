@@ -4,7 +4,7 @@ import os
 NO_MATERIALS = 5
 items = ['helmet', 'armor', 'shoes', 'weapon']
 
-directory_name = "res"
+directory_name = "character"
 if not os.path.isdir(directory_name):
   os.mkdir(directory_name)
 

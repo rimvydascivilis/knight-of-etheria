@@ -63,7 +63,7 @@ function Wardrobe() {
     const signer = await provider.getSigner();
     const playerContract = new ethers.Contract(playerAddress, constants.playerContract.abi, signer);
     const items = (await playerContract.equippedItems()).toString().split(',');
-    const [helmet, armor, boots, weapon] = [items[1], items[3], items[5], items[7]];
+    const [helmet, armor, weapon, boots] = [items[1], items[3], items[5], items[7]];
     setEquippedItems({
       'helmet': helmet,
       'armor': armor,
@@ -162,12 +162,12 @@ function Wardrobe() {
           <h3>Defense: {CharacterStats.combat.defense}</h3>
         </div>
 
-        {inventoryItems[0]['type'] == 0 ? null : (
+        {!inventoryItems.some((e)=> e['material'] !== '0') ? null : (
           <div className="align-self-end">
             <h2>Inventory Items</h2>
             <div className="inventory-items">
               {inventoryItems.map((item, idx) => {
-                if (item['type'] == 0) return;
+                if (item['material'] == 0) return;
                 return (
                   <div key={idx} className="inventory-item border border-dark">
                     <img src={getItemImgSrc(item)} alt="inventory item" onClick={() => equipItem(idx)}></img>
