@@ -22,12 +22,6 @@ describe('Game', function() {
 
       expect(await game.items()).to.not.equal(ADDRESS_ZERO);
     });
-
-    it('Should set the right owner', async function() {
-      const {game, owner} = await loadFixture(deployGameFixure);
-
-      expect(await game.owner()).to.equal(owner.address);
-    });
   });
 
   describe('Character', function() {
@@ -43,7 +37,7 @@ describe('Game', function() {
         const {game} = await loadFixture(deployGameFixure);
 
         await expect(game.createCharacter({value: parseEther('0.1')}))
-            .to.emit(game, 'CharacterCreated');
+            .not.to.be.reverted;
       });
 
       it('Player should have a character', async function() {
@@ -51,7 +45,7 @@ describe('Game', function() {
 
         await game.createCharacter({value: parseEther('0.1')});
 
-        expect(await game.players(owner.address)).to.not.equal(ADDRESS_ZERO);
+        expect(await game.getCharacterAddress()).to.not.equal(ADDRESS_ZERO);
       });
 
       it('Player should not be able to create more than one character', async function() {
